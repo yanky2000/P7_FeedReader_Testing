@@ -21,7 +21,7 @@ $(function() {
          * allFeeds in app.js to be an empty array and refresh the
          * page?
          */
-        it('are defined', function() {
+        it('allFeeds var is defined and not empty', function() {
             expect(allFeeds).toBeDefined();
             expect(allFeeds.length).not.toBe(0);
         });
@@ -31,7 +31,7 @@ $(function() {
          * in the allFeeds object and ensures it has a URL defined
          * and that the URL is not empty.
          */
-         it('has URL', function() {
+         it('All feeds have URL and they are not empty', function() {
              allFeeds.forEach(function(feedItem) {
                  expect(feedItem.url).toBeDefined();
                  expect(feedItem.url).not.toBe("");
@@ -43,7 +43,7 @@ $(function() {
          * in the allFeeds object and ensures it has a name defined
          * and that the name is not empty.
          */
-         it('has a Name', function() {
+         it('All feeds have Names and they are not empty', function() {
              allFeeds.forEach(function(feedItem) {
                  expect(feedItem.name).toBeDefined();
                  expect(feedItem.name).not.toBe("");
@@ -52,9 +52,8 @@ $(function() {
     });
 
 
-    /* TODO: Write a new test suite named "The menu" */
     describe('The menu', function() {
-        /* TODO: Write a test that ensures the menu element is
+        /* A test that ensures the menu element is
         * hidden by default. You'll have to analyze the HTML and
         * the CSS to determine how we're performing the
         * hiding/showing of the menu element.
@@ -68,88 +67,86 @@ $(function() {
         });
 
 
-
-        /* TODO: Write a test that ensures the menu changes
+        /* A test that ensures the menu changes
         * visibility when the menu icon is clicked. This test
         * should have two expectations: does the menu display when
         * clicked and does it hide when clicked again.
         */
-        it('Menu display when clicked', function() {
+        it('Menu displays when icon clicked', function() {
             $menuIcon.click();
             expect($('body').hasClass('menu-hidden')).toBeFalsy();
         });
 
-        it('Menu hidden when clicked second time', function() {
+        it('Menu hides when icon clicked second time', function() {
             $menuIcon.click();
             expect($('body').hasClass('menu-hidden')).toBeTruthy();
         });
-    })
+    });
 
 
-    /* TODO: Write a new test suite named "Initial Entries" */
-    describe('Initial Entries', function() {
+  describe('Initial Entries', function() {
 
-        /* TODO: Write a test that ensures when the loadFeed
-        * function is called and completes its work, there is at least
-        * a single .entry element within the .feed container.
-        * Remember, loadFeed() is asynchronous so this test will require
-        * the use of Jasmine's beforeEach and asynchronous done() function.
-        */
-        // for (var i = 0, feedLength = allFeeds.length-1; i < feedLength; i++) {
-        allFeeds.forEach(function(item, i, arr) {
-            beforeEach(function(done) {
-                loadFeed(i,function(){
-                    done()
-                });
-            });
+    /* A test that ensures when the loadFeed
+    * function is called and completes its work, there is at least
+    * a single .entry element within the .feed container.
+    */
+    var i = 0;
 
-            // afterEach(function(){
-            //     $('.feed .entry').empty();
-            // })
+      beforeEach(function(done) {
+        $('.feed .entry').remove(); // cleans up container before testing
+        loadFeed(i,function(){
+          done();
+        });
+      });
 
-            it('loadFeed() gets the content', function(done) {
-                $('.feed .entry').empty();
-                loadFeed(i);
-                console.log(i);
-                console.log($('.feed .entry').length);
-                expect($('.feed .entry').length).not.toEqual(0);
-                done();
-            });
-        })
-        // }
+      afterEach(function(){
+        i++; // another feed will be loaded by loadFeed() next time
+      });
 
-    })
+      /* To perform mutiple test for all our feeds we wrap template spec
+      * inside a function and call it in forEach loop.
+      * Credits for looping technique in jasming: http://tosbourn.com/using-loops-in-jasmine/
+      */
+      function test() {
+        it('loadFeed() adds elements to .feed container', function(done) {
+            expect($('.feed .entry').length).toBeGreaterThan(0);
+            done();
+        });
+      }
 
-    /* TODO: Write a new test suite named "New Feed Selection"*/
-    // describe('New Feed Selection', function() {
-    //
-    //     /* TODO: Write a test that ensures when a new feed is loaded
-    //     * by the loadFeed function that the content actually changes.
-    //     * Remember, loadFeed() is asynchronous.
-    //     */
-    //
-    //     beforeEach(function(done) {
-    //         loadFeed(0,function(){
-    //             done()
-    //         });
-    //     });
-    //
-    //     it('Content changes after loadFeed() runs', function(done) {
-    //         loadFeed(0);
-    //         console.log($('.feed .entry').length);
-    //         expect($('.feed .entry').length).not.toEqual(0);
-    //         done();
-    //     });
+      allFeeds.forEach(test);
 
+  });
 
-        // it('Result of loadFeed() changes', function(){
-        //     loadFeed(0);
-        //     $('.feed .entry').
-        //
-        //
-        // })
+  describe('New Feed selection', function() {
 
+    /* A test that ensures when a new feed is loaded
+    * by the loadFeed function that the content actually changes.
+    */
+    var i = 0,
+        $content;
 
-    // })
+      beforeEach(function(done) {
+        $content = $('.feed').html(); // saves up the current content for future comparison.
+        loadFeed(i,function(){
+          done();
+        });
+      });
+
+      afterEach(function(){
+        i++;
+      });
+
+      // Credits for looping technique in jasming: http://tosbourn.com/using-loops-in-jasmine/
+      function test() {
+        it('loadFeed() changes content', function(done) {
+          expect($content !== $('.feed').html()).toBeTruthy();
+          done();
+        });
+      }
+
+      allFeeds.forEach(test);
+
+    });
 
 }());
